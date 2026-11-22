@@ -1,0 +1,72 @@
+# Built application files
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+out/
+**/build/
+
+# Gradle files
+.gradle/
+buildOutputCleanup/
+
+# Android Studio / IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+.shelf/
+.attach_pid*
+
+# Local configuration
+local.properties
+
+# Secrets, Keystores, and Signing credentials
+*.jks
+*.keystore
+*.key
+*.p12
+*.pem
+*.pk8
+signing.properties
+keystore.properties
+*.env
+*.env.*
+!.env.example
+secret*.xml
+secrets/
+
+# Local databases and sensitive runtime data
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+*.bak
+*.backup
+
+# OS-specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Android profiling & traces
+captures/
+*.hprof
+
+# Log files
+*.log
+
+# Caches and native build artifacts
+.cxx/
+.kotlinc/
