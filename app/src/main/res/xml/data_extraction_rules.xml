@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <!-- Do not upload private local memory data to Google Cloud backup -->
+        <exclude domain="root" />
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+    </cloud-backup>
+    <device-to-device-backup>
+        <!-- Local encrypted transfer can be permitted under user control -->
+        <exclude domain="database" />
+    </device-to-device-backup>
+</data-extraction-rules>
