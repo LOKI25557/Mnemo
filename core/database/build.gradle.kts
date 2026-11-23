@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.kapt)
 }
 
 android {
@@ -28,6 +30,14 @@ android {
     }
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+    }
+}
+
 dependencies {
     implementation(project(":core:model"))
 
@@ -36,6 +46,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     api(libs.room.runtime)
     api(libs.room.ktx)
+    kapt(libs.room.compiler)
     api(libs.sqlcipher.android)
     api(libs.androidx.sqlite)
     api(libs.androidx.sqlite.ktx)
