@@ -19,19 +19,25 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Assistant
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Contacts
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Message
+import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -44,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mnemo.app.feature.memory.MemoryCard
 import com.mnemo.app.ui.theme.Emerald500
 import com.mnemo.app.ui.theme.Indigo500
 import com.mnemo.app.ui.theme.Sky400
@@ -53,57 +60,75 @@ data class FeatureCardItem(
     val description: String,
     val icon: ImageVector,
     val tag: String,
-    val accentColor: Color
+    val accentColor: Color,
+    val destination: String
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    uiState: HomeUiState,
+    onNavigateToChat: () -> Unit,
+    onNavigateToMemories: () -> Unit,
     onNavigateToDiagnostics: () -> Unit,
-    onFeatureCardClick: (String) -> Unit
+    onDeleteRecentMemory: (String) -> Unit = {}
 ) {
     val features = listOf(
         FeatureCardItem(
-            title = "Assistant",
-            description = "Natural language queries, intent routing, and source-verified responses on local device data.",
+            title = "Assistant Chat",
+            description = "Natural language queries, intent routing, and source-verified answers on local device data.",
             icon = Icons.Default.Assistant,
-            tag = "Phase 1: Loki",
-            accentColor = Sky400
+            tag = "Phase 1: Loki & Pravee",
+            accentColor = Sky400,
+            destination = "chat"
         ),
         FeatureCardItem(
-            title = "Contacts",
-            description = "Search local contacts and phone numbers with zero network transmission.",
+            title = "Encrypted Memories",
+            description = "Explore indexed memories, add new items, or search full-text across encrypted records.",
+            icon = Icons.Default.Psychology,
+            tag = "Phase 1: Nikhi & Pravee",
+            accentColor = Emerald500,
+            destination = "memories"
+        ),
+        FeatureCardItem(
+            title = "Contacts Integration",
+            description = "Ask questions like \"Find Rahul's phone number\" with zero network transmission.",
             icon = Icons.Default.Contacts,
             tag = "Phase 1: Dadu",
-            accentColor = Indigo500
+            accentColor = Indigo500,
+            destination = "chat"
         ),
         FeatureCardItem(
-            title = "Calendar",
-            description = "Check upcoming events, meetings, and daily schedules on-device.",
+            title = "Calendar Schedule",
+            description = "Ask \"What is on my schedule today?\" to inspect upcoming events completely offline.",
             icon = Icons.Default.CalendarMonth,
             tag = "Phase 1: Dadu",
-            accentColor = Emerald500
+            accentColor = Emerald500,
+            destination = "chat"
         ),
         FeatureCardItem(
-            title = "Messages",
-            description = "Index and search local notifications and messages offline.",
+            title = "Notifications & Messages",
+            description = "Query local notifications and messages without any cloud telemetry.",
             icon = Icons.Default.Message,
             tag = "Phase 1: Dadu",
-            accentColor = Color(0xFFA855F7)
+            accentColor = Color(0xFFA855F7),
+            destination = "chat"
         ),
         FeatureCardItem(
-            title = "Files",
-            description = "Search downloaded PDFs and local documents with zero cloud access.",
+            title = "Offline Documents & Files",
+            description = "Search local files and PDFs without cloud processing.",
             icon = Icons.Default.Folder,
             tag = "Phase 1: Dadu",
-            accentColor = Color(0xFFF59E0B)
+            accentColor = Color(0xFFF59E0B),
+            destination = "chat"
         ),
         FeatureCardItem(
-            title = "Privacy Dashboard",
-            description = "Inspect hardware Keystore encryption status, access audit logs, and trigger secure deletion.",
+            title = "Privacy & Diagnostics",
+            description = "Audit hardware Keystore encryption, verified lack of INTERNET permission, and storage status.",
             icon = Icons.Default.Lock,
             tag = "Phase 1: Nikhi",
-            accentColor = Color(0xFFEC4899)
+            accentColor = Color(0xFFEC4899),
+            destination = "diagnostics"
         )
     )
 
@@ -153,11 +178,12 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 88.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Header
             item {
-                Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                Column(modifier = Modifier.padding(vertical = 4.dp)) {
                     Text(
                         text = "Mnemo",
                         style = MaterialTheme.typography.headlineLarge,
@@ -166,26 +192,170 @@ fun HomeScreen(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Your Private On-Device AI Assistant",
+                        text = "Private On-Device AI Assistant",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
                     PrivacyBadge()
                 }
+            }
+
+            // Quick Action Card: Start Chat
+            item {
+                HeroChatActionCard(
+                    onStartChat = onNavigateToChat,
+                    totalMemories = uiState.totalMemoriesCount,
+                    onViewMemories = onNavigateToMemories
+                )
+            }
+
+            // Recent memories preview if any exist
+            if (uiState.recentMemories.isNotEmpty()) {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Recent Encrypted Memories",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        OutlinedButton(onClick = onNavigateToMemories) {
+                            Text("View All (${uiState.totalMemoriesCount})")
+                        }
+                    }
+                }
+
+                items(uiState.recentMemories, key = { it.id }) { memory ->
+                    MemoryCard(
+                        item = memory,
+                        onDeleteClick = onDeleteRecentMemory
+                    )
+                }
+            }
+
+            // Feature Sections
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Capabilities & Modules",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
             }
 
             items(features) { feature ->
                 FeaturePlaceholderCard(
                     item = feature,
-                    onClick = { onFeatureCardClick(feature.title) }
+                    onClick = {
+                        when (feature.destination) {
+                            "chat" -> onNavigateToChat()
+                            "memories" -> onNavigateToMemories()
+                            "diagnostics" -> onNavigateToDiagnostics()
+                            else -> onNavigateToChat()
+                        }
+                    }
                 )
             }
 
             item {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 TeamRosterCard()
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun HeroChatActionCard(
+    onStartChat: () -> Unit,
+    totalMemories: Int,
+    onViewMemories: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = Sky400.copy(alpha = 0.2f),
+                    modifier = Modifier.size(44.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Default.Chat,
+                            contentDescription = null,
+                            tint = Sky400,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(14.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Ask Mnemo",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "$totalMemories local memories ready to query",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Text(
+                text = "Ask questions, query offline contacts and calendars, or say \"Remember: <note>\" to store private thoughts.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Button(
+                    onClick = onStartChat,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Assistant,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Open Chat")
+                }
+
+                OutlinedButton(
+                    onClick = onViewMemories,
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("Memories")
+                }
             }
         }
     }
@@ -287,6 +457,15 @@ private fun FeaturePlaceholderCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = "Navigate",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                modifier = Modifier.size(16.dp)
+            )
         }
     }
 }
